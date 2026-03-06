@@ -15,12 +15,15 @@ namespace DocumentApp
         private Button btnAddText;
         private Button btnRemove;
         private Button btnBuild;
+        private Button btnAddList;
+        private Button btnAddTable;
         private ListBox listBlocks;
         private RichTextBox txtResult;
 
         public Form1()
         {
             InitializeComponent();
+            updateList();
         }
 
         private void InitializeComponent()
@@ -72,6 +75,20 @@ namespace DocumentApp
             btnBuild.Location = new Point(20, 140);
             btnBuild.Size = new Size(150, 30);
             btnBuild.Click += btnBuild_Click;
+
+            btnAddList = new Button();
+            btnAddList.Text = "Добавить список";
+            btnAddList.Location = new Point(20, 180);
+            btnAddList.Size = new Size(150, 30);
+            btnAddList.Click += btnAddList_Click;
+
+
+            btnAddTable = new Button();
+            btnAddTable.Text = "Добавить таблицу";
+            btnAddTable.Location = new Point(20, 220);
+            btnAddTable.Size = new Size(150, 30);
+            btnAddTable.Click += btnAddTable_Click;
+
             // 
             // listBlocks
             // 
@@ -95,22 +112,37 @@ namespace DocumentApp
             this.Controls.Add(btnBuild);
             this.Controls.Add(listBlocks);
             this.Controls.Add(txtResult);
+            this.Controls.Add(btnAddList);
+            this.Controls.Add(btnAddTable);
 
         }
 
         private void btnAddHeader_Click(object sender, EventArgs e)
         {
-            IBlock block = new HeaderBlock();
-            block.setContent("Новый заголовок");
-            _builder.addBlock(block);
-            updateList();
+            using (var dialog = new InputDialog("Введите текст заголовка:"))
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    IBlock block = new HeaderBlock();
+                    block.setContent(dialog.UserInput);
+                    _builder.addBlock(block);
+                    updateList();
+                }
+            }
         }
         private void btnAddText_Click(object sender, EventArgs e)
         {
-            IBlock block = new TextBlock();
-            block.setContent("Обычный текст документа");
-            _builder.addBlock(block);
-            updateList();
+            using (var dialog = new InputDialog("Введите текст:"))
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    IBlock block = new TextBlock();
+                    block.setContent(dialog.UserInput);
+                    _builder.addBlock(block);
+                    updateList();
+                }
+            }
+            
         }
 
         private void btnRemove_Click(object sender, EventArgs e)
@@ -130,6 +162,9 @@ namespace DocumentApp
 
         private void updateList()
         {
+            if (listBlocks == null || _builder == null)
+                return;
+
             listBlocks.Items.Clear();
             foreach (var block in _builder.getBlocks())
             {
@@ -137,6 +172,33 @@ namespace DocumentApp
             }
         }
 
+        private void btnAddList_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new InputDialog("Введите элементы списка (каждый с новой строки):"))
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    IBlock block = new ListBlock();
+                    block.setContent(dialog.UserInput);
+                    _builder.addBlock(block);
+                    updateList();
+                }
+            }
+        }
+
+        private void btnAddTable_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new InputDialog("Введите таблицу (ячейки через |, строки с новой строки):\nПример: Ячейка1|Ячейка2\nЯчейка3|Ячейка4"))
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    IBlock block = new TableBlock();
+                    block.setContent(dialog.UserInput);
+                    _builder.addBlock(block);
+                    updateList();
+                }
+            }
+        }
 
     }
 }

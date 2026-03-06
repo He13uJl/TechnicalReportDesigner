@@ -12,7 +12,7 @@ namespace DocumentCore
 
         public string getName()
         {
-            return "Заголовок";
+            return string.IsNullOrEmpty(_content) ? "Заголовок" : $"Заголовок: {_content}" ;
         }
 
         public void setContent(string content)

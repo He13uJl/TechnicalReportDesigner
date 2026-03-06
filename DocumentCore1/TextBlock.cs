@@ -12,7 +12,11 @@ namespace DocumentCore
 
         public string getName()
         {
-            return "Текст";
+            string preview = string.IsNullOrEmpty(_content) ? "Текст" : _content;
+
+            if (preview.Length > 30)
+                preview = preview.Substring(0, 30) + "...";
+            return preview;
         }
 
         public void setContent(string content)
