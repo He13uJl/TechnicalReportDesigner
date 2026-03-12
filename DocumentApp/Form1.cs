@@ -1,4 +1,4 @@
-using DocumentCore;
+п»їusing DocumentCore;
 using System;
 using System.Windows;
 using System.Windows.Forms;
@@ -19,80 +19,96 @@ namespace DocumentApp
         private Button btnAddTable;
         private ListBox listBlocks;
         private RichTextBox txtResult;
-
+        private CheckBox chkDarkTheme;
         public Form1()
         {
             InitializeComponent();
             updateList();
+            ThemeManager.LoadTheme();
+            chkDarkTheme.Checked = ThemeManager.IsDarkTheme;
+            ThemeManager.ApplyTheme(this);
         }
 
         private void InitializeComponent()
         {
-            this.Text = "Конструктор документов";
-            this.Size = new Size(800, 600);
-            this.StartPosition = FormStartPosition.CenterParent;
-
-
-
-
-
-
+            chkDarkTheme = new CheckBox();
+            btnAddHeader = new Button();
+            btnAddText = new Button();
+            btnRemove = new Button();
+            btnBuild = new Button();
+            btnAddList = new Button();
+            btnAddTable = new Button();
+            listBlocks = new ListBox();
+            txtResult = new RichTextBox();
+            SuspendLayout();
+            // 
+            // chkDarkTheme
+            // 
+            chkDarkTheme.AutoSize = true;
+            chkDarkTheme.Font = new Font("Segoe UI", 10F);
+            chkDarkTheme.Location = new Point(12, 526);
+            chkDarkTheme.Name = "chkDarkTheme";
+            chkDarkTheme.Size = new Size(131, 23);
+            chkDarkTheme.TabIndex = 7;
+            chkDarkTheme.Text = "рџЊ™ РўС‘РјРЅР°СЏ С‚РµРјР°";
+            chkDarkTheme.CheckedChanged += chkDarkTheme_CheckedChanged;
             // 
             // btnAddHeader
             // 
-            btnAddHeader = new Button();
             btnAddHeader.Location = new Point(20, 20);
             btnAddHeader.Name = "btnAddHeader";
             btnAddHeader.Size = new Size(150, 30);
             btnAddHeader.TabIndex = 0;
-            btnAddHeader.Text = "Добавить заголовок";
+            btnAddHeader.Text = "Р”РѕР±Р°РІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє";
             btnAddHeader.Click += btnAddHeader_Click;
             // 
             // btnAddText
             // 
-            btnAddText = new Button();
             btnAddText.Location = new Point(20, 60);
             btnAddText.Name = "btnAddText";
             btnAddText.Size = new Size(150, 30);
             btnAddText.TabIndex = 1;
-            btnAddText.Text = "Добавить текст";
+            btnAddText.Text = "Р”РѕР±Р°РІРёС‚СЊ С‚РµРєСЃС‚";
             btnAddText.Click += btnAddText_Click;
             // 
             // btnRemove
             // 
-            btnRemove = new Button();
             btnRemove.Location = new Point(20, 100);
             btnRemove.Name = "btnRemove";
             btnRemove.Size = new Size(150, 30);
             btnRemove.TabIndex = 2;
-            btnRemove.Text = "Удалить выбранный";
+            btnRemove.Text = "РЈРґР°Р»РёС‚СЊ РІС‹Р±СЂР°РЅРЅС‹Р№";
             btnRemove.Click += btnRemove_Click;
-            //
+            // 
             // btnBuild
-            //
-            btnBuild = new Button();
-            btnBuild.Text = "Собрать отчет";
+            // 
             btnBuild.Location = new Point(20, 140);
+            btnBuild.Name = "btnBuild";
             btnBuild.Size = new Size(150, 30);
+            btnBuild.TabIndex = 3;
+            btnBuild.Text = "РЎРѕР±СЂР°С‚СЊ РѕС‚С‡РµС‚";
             btnBuild.Click += btnBuild_Click;
-
-            btnAddList = new Button();
-            btnAddList.Text = "Добавить список";
+            // 
+            // btnAddList
+            // 
             btnAddList.Location = new Point(20, 180);
+            btnAddList.Name = "btnAddList";
             btnAddList.Size = new Size(150, 30);
+            btnAddList.TabIndex = 5;
+            btnAddList.Text = "Р”РѕР±Р°РІРёС‚СЊ СЃРїРёСЃРѕРє";
             btnAddList.Click += btnAddList_Click;
-
-
-            btnAddTable = new Button();
-            btnAddTable.Text = "Добавить таблицу";
+            // 
+            // btnAddTable
+            // 
             btnAddTable.Location = new Point(20, 220);
+            btnAddTable.Name = "btnAddTable";
             btnAddTable.Size = new Size(150, 30);
+            btnAddTable.TabIndex = 6;
+            btnAddTable.Text = "Р”РѕР±Р°РІРёС‚СЊ С‚Р°Р±Р»РёС†Сѓ";
             btnAddTable.Click += btnAddTable_Click;
-
             // 
             // listBlocks
             // 
-            listBlocks = new ListBox();
             listBlocks.ItemHeight = 15;
             listBlocks.Location = new Point(200, 20);
             listBlocks.Name = "listBlocks";
@@ -101,25 +117,36 @@ namespace DocumentApp
             // 
             // txtResult
             // 
-            txtResult = new RichTextBox();
             txtResult.Location = new Point(470, 20);
-            txtResult.Size = new Size(300, 530);
+            txtResult.Name = "txtResult";
             txtResult.ReadOnly = true;
-
-            this.Controls.Add(btnAddHeader);
-            this.Controls.Add(btnAddText);
-            this.Controls.Add(btnRemove);
-            this.Controls.Add(btnBuild);
-            this.Controls.Add(listBlocks);
-            this.Controls.Add(txtResult);
-            this.Controls.Add(btnAddList);
-            this.Controls.Add(btnAddTable);
+            txtResult.Size = new Size(300, 530);
+            txtResult.TabIndex = 4;
+            txtResult.Text = "";
+            // 
+            // Form1
+            // 
+            ClientSize = new Size(784, 561);
+            Controls.Add(btnAddHeader);
+            Controls.Add(btnAddText);
+            Controls.Add(btnRemove);
+            Controls.Add(btnBuild);
+            Controls.Add(listBlocks);
+            Controls.Add(txtResult);
+            Controls.Add(btnAddList);
+            Controls.Add(btnAddTable);
+            Controls.Add(chkDarkTheme);
+            Name = "Form1";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґРѕРєСѓРјРµРЅС‚РѕРІ";
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
         private void btnAddHeader_Click(object sender, EventArgs e)
         {
-            using (var dialog = new InputDialog("Введите текст заголовка:"))
+            using (var dialog = new InputDialog("Р’РІРµРґРёС‚Рµ С‚РµРєСЃС‚ Р·Р°РіРѕР»РѕРІРєР°:"))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -132,7 +159,7 @@ namespace DocumentApp
         }
         private void btnAddText_Click(object sender, EventArgs e)
         {
-            using (var dialog = new InputDialog("Введите текст:"))
+            using (var dialog = new InputDialog("Р’РІРµРґРёС‚Рµ С‚РµРєСЃС‚:"))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -174,7 +201,7 @@ namespace DocumentApp
 
         private void btnAddList_Click(object sender, EventArgs e)
         {
-            using (var dialog = new InputDialog("Введите элементы списка (каждый с новой строки):"))
+            using (var dialog = new InputDialog("Р’РІРµРґРёС‚Рµ СЌР»РµРјРµРЅС‚С‹ СЃРїРёСЃРєР° (РєР°Р¶РґС‹Р№ СЃ РЅРѕРІРѕР№ СЃС‚СЂРѕРєРё):"))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -188,7 +215,7 @@ namespace DocumentApp
 
         private void btnAddTable_Click(object sender, EventArgs e)
         {
-            using (var dialog = new InputDialog("Введите таблицу (ячейки через |, строки с новой строки):\nПример: Ячейка1|Ячейка2\nЯчейка3|Ячейка4"))
+            using (var dialog = new InputDialog("Р’РІРµРґРёС‚Рµ С‚Р°Р±Р»РёС†Сѓ (СЏС‡РµР№РєРё С‡РµСЂРµР· |, СЃС‚СЂРѕРєРё СЃ РЅРѕРІРѕР№ СЃС‚СЂРѕРєРё):\nРџСЂРёРјРµСЂ: РЇС‡РµР№РєР°1|РЇС‡РµР№РєР°2\nРЇС‡РµР№РєР°3|РЇС‡РµР№РєР°4"))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -198,6 +225,12 @@ namespace DocumentApp
                     updateList();
                 }
             }
+        }
+
+        private void chkDarkTheme_CheckedChanged(object sender, EventArgs e)
+        {
+            ThemeManager.IsDarkTheme = chkDarkTheme.Checked;
+            ThemeManager.ApplyTheme(this);
         }
 
     }

@@ -12,7 +12,7 @@ namespace DocumentApp
 {
     public partial class WelcomeForm : Form
     {
-
+            private CheckBox chkDarkTheme;
             private Label lblTitle;
             private Label lblSubtitle;
             private Label lblDescription;
@@ -23,16 +23,21 @@ namespace DocumentApp
             public WelcomeForm()
             {
                 InitializeComponent();
+                ThemeManager.LoadTheme();
+                chkDarkTheme.Checked = ThemeManager.IsDarkTheme;
+                ThemeManager.ApplyTheme(this);
             }
 
         private void InitializeComponent()
         {
+            ComponentResourceManager resources = new ComponentResourceManager(typeof(WelcomeForm));
             lblTitle = new Label();
             lblSubtitle = new Label();
             lblDescription = new Label();
             lblVersion = new Label();
             btnStart = new Button();
             btnExit = new Button();
+            chkDarkTheme = new CheckBox();
             SuspendLayout();
             // 
             // lblTitle
@@ -42,7 +47,7 @@ namespace DocumentApp
             lblTitle.ForeColor = Color.FromArgb(0, 126, 215);
             lblTitle.Location = new Point(80, 50);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(421, 45);
+            lblTitle.Size = new Size(466, 45);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "📋Конструктор документов";
             // 
@@ -65,8 +70,7 @@ namespace DocumentApp
             lblDescription.Name = "lblDescription";
             lblDescription.Size = new Size(421, 351);
             lblDescription.TabIndex = 2;
-            lblDescription.Text = "Эта программа позволяет создавать документы из различных блоков:\n\n  - 📃Заголовки\n  - 📄Текстовые блоки\n  - 📋Маркированные списки\n  - 📊Таблицы\n\nВы можете сохранять документы в файлы и загружать их позже.";
-            lblDescription.TextAlign = ContentAlignment.TopCenter;
+            lblDescription.Text = resources.GetString("lblDescription.Text");
             // 
             // lblVersion
             // 
@@ -91,7 +95,7 @@ namespace DocumentApp
             btnStart.Name = "btnStart";
             btnStart.Size = new Size(200, 50);
             btnStart.TabIndex = 4;
-            btnStart.Text = "Начать работу";
+            btnStart.Text = "▶️Начать работу";
             btnStart.UseVisualStyleBackColor = false;
             btnStart.Click += btnStart_Click;
             // 
@@ -102,14 +106,25 @@ namespace DocumentApp
             btnExit.FlatAppearance.BorderSize = 0;
             btnExit.FlatStyle = FlatStyle.Flat;
             btnExit.Font = new Font("Segoe UI", 10F);
-            btnExit.ForeColor = Color.Magenta;
+            btnExit.ForeColor = Color.Black;
             btnExit.Location = new Point(232, 553);
             btnExit.Name = "btnExit";
             btnExit.Size = new Size(120, 35);
             btnExit.TabIndex = 5;
-            btnExit.Text = "X Выход";
+            btnExit.Text = "❌Выход";
             btnExit.UseVisualStyleBackColor = false;
             btnExit.Click += btnExit_Click;
+            // 
+            // chkDarkTheme
+            // 
+            chkDarkTheme.AutoSize = true;
+            chkDarkTheme.Font = new Font("Segoe UI", 10F);
+            chkDarkTheme.Location = new Point(12, 560);
+            chkDarkTheme.Name = "chkDarkTheme";
+            chkDarkTheme.Size = new Size(131, 23);
+            chkDarkTheme.TabIndex = 6;
+            chkDarkTheme.Text = "🌙 Тёмная тема";
+            chkDarkTheme.CheckedChanged += chkDarkTheme_CheckedChanged;
             // 
             // WelcomeForm
             // 
@@ -121,6 +136,7 @@ namespace DocumentApp
             Controls.Add(lblVersion);
             Controls.Add(btnStart);
             Controls.Add(btnExit);
+            Controls.Add(chkDarkTheme);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
@@ -136,15 +152,19 @@ namespace DocumentApp
                 Form1 mainForm = new Form1();
                 mainForm.Show();
 
-                this.Hide();
+                Hide();
             }
 
-            private void btnExit_Click(object sender, EventArgs e)
+        private void btnExit_Click(object sender, EventArgs e)
             {
                 Application.Exit();
             }
 
-
+        private void chkDarkTheme_CheckedChanged(object sender, EventArgs e)
+            {
+            ThemeManager.IsDarkTheme = chkDarkTheme.Checked;
+            ThemeManager.ApplyTheme(this);
+            }
 
        
     }
