@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -83,6 +84,10 @@ namespace DocumentCore
             _rows.Add(cells);
             if (cells.Count > _columns)
                 _columns = cells.Count;
+        }
+        public string GetItems()
+        {
+            return $"Таблица ({_rows.Count} стр.)";
         }
     }
 }

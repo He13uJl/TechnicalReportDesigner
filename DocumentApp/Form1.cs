@@ -2,8 +2,11 @@
 using System;
 using System.Windows;
 using System.Windows.Forms;
-
-
+using OfficeOpenXml.Style;
+using OfficeOpenXml;
+using System.IO;
+using System.Linq;
+using System.Diagnostics;
 namespace DocumentApp
 {
 
@@ -20,13 +23,23 @@ namespace DocumentApp
         private ListBox listBlocks;
         private RichTextBox txtResult;
         private CheckBox chkDarkTheme;
+
+        static Form1()
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        }
+
         public Form1()
         {
             InitializeComponent();
             updateList();
             ThemeManager.LoadTheme();
-            chkDarkTheme.Checked = ThemeManager.IsDarkTheme;
-            ThemeManager.ApplyTheme(this);
+
+            if (chkDarkTheme != null)
+            {
+                chkDarkTheme.Checked = ThemeManager.IsDarkTheme;
+                ThemeManager.ApplyTheme(this);
+            }
         }
 
         private void InitializeComponent()
@@ -106,6 +119,18 @@ namespace DocumentApp
             btnAddTable.TabIndex = 6;
             btnAddTable.Text = "Добавить таблицу";
             btnAddTable.Click += btnAddTable_Click;
+            //
+            //
+            //
+            var btnExportExcel = new Button();
+            btnExportExcel.Text = "📦Экспорт в Excel";
+            btnExportExcel.Location = new Point(10, 415);
+            btnExportExcel.Size = new Size(160, 35);
+            btnExportExcel.BackColor = Color.FromArgb(21, 101, 192);
+            btnExportExcel.ForeColor = Color.White;
+            btnExportExcel.FlatStyle = FlatStyle.Flat;
+            btnExportExcel.Click += btnExportExcel_Click;
+            this.Controls.Add(btnExportExcel);
             // 
             // listBlocks
             // 
@@ -169,7 +194,7 @@ namespace DocumentApp
                     updateList();
                 }
             }
-            
+
         }
 
         private void btnRemove_Click(object sender, EventArgs e)
@@ -233,5 +258,116 @@ namespace DocumentApp
             ThemeManager.ApplyTheme(this);
         }
 
+        private void btnExportExcel_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx";
+                saveFileDialog.FilterIndex = 2;
+                saveFileDialog.RestoreDirectory = true;
+                saveFileDialog.FileName = $"Документ_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        ExportToExcel(saveFileDialog.FileName);
+                        MessageBox.Show("Экспорт выполнен успешно!", "Успех",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при экспорте: {ex.Message}", "Ошибка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void ExportToExcel(string FilePath)
+        {
+            using (var package = new ExcelPackage())
+            {
+                var infoSheet = package.Workbook.Worksheets.Add("Информация");
+                infoSheet.Cells[1, 1].Value = "Конструктор документов";
+                infoSheet.Cells[1, 1].Style.Font.Bold = true;
+                infoSheet.Cells[1, 1].Style.Font.Size = 16;
+                infoSheet.Cells[2, 1].Value = $"Дата: {DateTime.Now:dd.MM.yyyy HH:mm}";
+                infoSheet.Cells[3, 1].Value = $"Блоков: {_builder.getBlocks().Count}";
+
+                var contentSheet = package.Workbook.Worksheets.Add("Содержание");
+                int row = 1;
+                var blocks = _builder.getBlocks();
+
+                foreach (var block in blocks)
+                {
+                    if (block is HeaderBlock headerBlock)
+                    {
+                        contentSheet.Cells[row, 1].Value = headerBlock.getName().Replace("Заголовок: ", "");
+                        contentSheet.Cells[row, 1].Style.Font.Bold = true;
+                        contentSheet.Cells[row, 1].Style.Font.Size = 14;
+                        contentSheet.Cells[row, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        contentSheet.Cells[row, 1].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(0, 120, 215));
+                        contentSheet.Cells[row, 1].Style.Font.Color.SetColor(Color.White);
+                        row++;
+                    }
+                    else if (block is TextBlock textBlock)
+                    {
+                        contentSheet.Cells[row, 1].Value = textBlock.render().Trim();
+                        contentSheet.Cells[row, 1].Style.WrapText = true;
+                        row++;
+                    }
+                    else if (block is ListBlock listBlock)
+                    {
+                        var items = listBlock.GetAllItems();
+                        foreach (var item in items)
+                        {
+                            contentSheet.Cells[row, 1].Value += $"{item} ";
+                        }
+                        row++;
+                    }
+                    else if (block is TableBlock tableBlock)
+                    {
+
+                        string tableContent = tableBlock.GetItems()?.ToString() ?? "";
+
+
+                        string[] rows = tableContent.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        int startRow = row;
+
+                        for (int i = 0; i < rows.Length; i++)
+                        {
+                            string[] cells = rows[i].Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+
+                            for (int j = 0; j < cells.Length; j++)
+                            {
+                                contentSheet.Cells[startRow + i, j + 1].Value = cells[j].Trim();
+                                contentSheet.Cells[startRow + i, j + 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                            }
+                        }
+
+                        if (rows.Length > 0)
+                        {
+                            string[] firstRowCells = rows[0].Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                            for (int c = 1; c <= firstRowCells.Length; c++)
+                            {
+                                contentSheet.Column(c).AutoFit();
+                            }
+                        }
+
+                        row = startRow + rows.Length + 1;
+                    }
+                    else
+                    {
+                        contentSheet.Cells[row, 1].Value = block.render().Trim();
+                        row++;
+                    }
+                }
+
+                var fileInfo = new System.IO.FileInfo(FilePath);
+                    package.SaveAs(fileInfo);
+                }
+            }
+        }
     }
-}
